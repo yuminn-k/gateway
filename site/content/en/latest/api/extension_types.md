@@ -461,7 +461,7 @@ _Appears in:_
 
 | Field | Type | Required | Default | Description |
 | ---   | ---  | ---      | ---     | ---         |
-| `mode` | _[BackendHTTP3Mode](#backendhttp3mode)_ |  false  |  | Mode determines when HTTP/3 is used to reach the backend.<br />Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.<br />It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;<br />HTTP/3 is then used only for requests the client sent over HTTP/3. |
+| `mode` | _[BackendHTTP3Mode](#backendhttp3mode)_ |  false  |  | Mode determines when HTTP/3 is used to reach the backend.<br />Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc. |
 
 
 #### BackendMetrics
