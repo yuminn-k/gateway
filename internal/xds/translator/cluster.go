@@ -1354,6 +1354,11 @@ func buildTypedExtensionProtocolOptions(args *xdsClusterArgs, requiresAutoHTTPCo
 				Http2ProtocolOptions: http2Opts,
 			},
 		}
+		// HTTP/3 clients are forwarded over QUIC with no TCP fallback; HTTP/1 and HTTP/2
+		// clients still use TLS over TCP through the QuicUpstreamTransport's TLS context.
+		if requiresHTTP3 {
+			protocolOptions.GetUseDownstreamProtocolConfig().Http3ProtocolOptions = &corev3.Http3ProtocolOptions{}
+		}
 	// If forceHTTP1UpstreamProtocol is set, force Envoy to use HTTP1 upstream regardless of other settings.
 	case forceHTTP1UpstreamProtocol:
 		protocolOptions.UpstreamProtocolOptions = &httpv3.HttpProtocolOptions_ExplicitHttpConfig_{

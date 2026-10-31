@@ -92,6 +92,24 @@
                   key: alt-svc
                   value: h3=":8443"; ma=86400
     - match:
+        path: /https-client-protocol-route
+      name: https-client-protocol-route
+      route:
+        cluster: httproute/default/https-http3-client-protocol/rule/0
+        upgradeConfigs:
+        - upgradeType: websocket
+      typedPerFilterConfig:
+        envoy.filters.http.header_mutation/upstream_http3:
+          '@type': type.googleapis.com/envoy.extensions.filters.http.header_mutation.v3.HeaderMutationPerRoute
+          mutations:
+            responseMutations:
+            - remove: alt-svc
+            - append:
+                append: true
+                header:
+                  key: alt-svc
+                  value: h3=":8443"; ma=86400
+    - match:
         path: /https-plain-route
       name: https-plain-route
       responseHeadersToAdd:

@@ -1,0 +1,1 @@
+Added support for combining `useClientProtocol` with `http3` in BackendTrafficPolicy when `http3.mode` is unset, so HTTP/3 clients reach the backend over HTTP/3 while HTTP/1.1 and HTTP/2 clients use TLS over TCP.

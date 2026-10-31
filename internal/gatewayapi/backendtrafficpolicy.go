@@ -1951,7 +1951,7 @@ func (t *Translator) buildClusterTrafficFeatures(policy *egv1a1.BackendTrafficPo
 		BackendConnection: bc,
 		HTTP1:             h1,
 		HTTP2:             h2,
-		HTTP3:             buildIRBackendHTTP3Settings(policy.Spec.HTTP3),
+		HTTP3:             buildIRBackendHTTP3Settings(policy.Spec.HTTP3, ptr.Deref(policy.Spec.UseClientProtocol, false)),
 		DNS:               ds,
 	}, errs
 }
@@ -2318,7 +2318,7 @@ func applyRouteHTTP3(r *ir.HTTPRoute, warnings http3Warnings) {
 	if r.Traffic == nil || r.Traffic.HTTP3 == nil || r.Destination == nil {
 		return
 	}
-	reasons := ir.HTTP3Incompatibilities(r.Destination.Settings, ptr.Deref(r.UseClientProtocol, false), r.Traffic.ProxyProtocol != nil)
+	reasons := ir.HTTP3Incompatibilities(r.Destination.Settings, ptr.Deref(r.UseClientProtocol, false) && r.Traffic.HTTP3.Mode != "", r.Traffic.ProxyProtocol != nil)
 	if len(reasons) > 0 {
 		r.Traffic.HTTP3 = nil
 		for _, reason := range reasons {
@@ -2380,7 +2380,7 @@ func applyGatewayPolicyToMergedCluster(bc *ir.BackendCluster, cf *ir.ClusterTraf
 		// caller can add a Warning condition to the Gateway.
 		if bc.Traffic.HTTP3 != nil {
 			reasons := ir.HTTP3Incompatibilities([]*ir.DestinationSetting{bc.Setting},
-				ptr.Deref(useClientProtocol, false), bc.Traffic.ProxyProtocol != nil)
+				ptr.Deref(useClientProtocol, false) && bc.Traffic.HTTP3.Mode != "", bc.Traffic.ProxyProtocol != nil)
 			if len(reasons) > 0 {
 				bc.Traffic.HTTP3 = nil
 				return reasons

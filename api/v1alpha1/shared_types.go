@@ -858,6 +858,8 @@ const (
 type BackendHTTP3Settings struct {
 	// Mode determines when HTTP/3 is used to reach the backend.
 	// Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+	// It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+	// HTTP/3 is then used only for requests the client sent over HTTP/3.
 	//
 	// +optional
 	Mode *BackendHTTP3Mode `json:"mode,omitempty"`

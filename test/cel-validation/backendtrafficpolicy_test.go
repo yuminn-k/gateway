@@ -5949,7 +5949,7 @@ func backendTrafficPolicyCases() []backendTrafficPolicyCase {
 			wantErrors: []string{"spec.http3.mode: Unsupported value: \"Sometimes\""},
 		},
 		{
-			desc: "invalid http3 with useClientProtocol",
+			desc: "valid http3 without mode with useClientProtocol",
 			mutate: func(btp *egv1a1.BackendTrafficPolicy) {
 				btp.Spec = egv1a1.BackendTrafficPolicySpec{
 					PolicyTargetReferences: egv1a1.PolicyTargetReferences{
@@ -5967,7 +5967,49 @@ func backendTrafficPolicyCases() []backendTrafficPolicyCase {
 					UseClientProtocol: new(true),
 				}
 			},
-			wantErrors: []string{"useClientProtocol cannot be used together with http3"},
+			wantErrors: []string{},
+		},
+		{
+			desc: "invalid http3 mode Auto with useClientProtocol",
+			mutate: func(btp *egv1a1.BackendTrafficPolicy) {
+				btp.Spec = egv1a1.BackendTrafficPolicySpec{
+					PolicyTargetReferences: egv1a1.PolicyTargetReferences{
+						TargetRef: &gwapiv1.LocalPolicyTargetReferenceWithSectionName{
+							LocalPolicyTargetReference: gwapiv1.LocalPolicyTargetReference{
+								Group: gwapiv1.Group("gateway.networking.k8s.io"),
+								Kind:  gwapiv1.Kind("Gateway"),
+								Name:  gwapiv1.ObjectName("eg"),
+							},
+						},
+					},
+					ClusterSettings: egv1a1.ClusterSettings{
+						HTTP3: &egv1a1.BackendHTTP3Settings{Mode: new(egv1a1.BackendHTTP3ModeAuto)},
+					},
+					UseClientProtocol: new(true),
+				}
+			},
+			wantErrors: []string{"useClientProtocol cannot be used together with http3.mode"},
+		},
+		{
+			desc: "invalid http3 mode Always with useClientProtocol",
+			mutate: func(btp *egv1a1.BackendTrafficPolicy) {
+				btp.Spec = egv1a1.BackendTrafficPolicySpec{
+					PolicyTargetReferences: egv1a1.PolicyTargetReferences{
+						TargetRef: &gwapiv1.LocalPolicyTargetReferenceWithSectionName{
+							LocalPolicyTargetReference: gwapiv1.LocalPolicyTargetReference{
+								Group: gwapiv1.Group("gateway.networking.k8s.io"),
+								Kind:  gwapiv1.Kind("Gateway"),
+								Name:  gwapiv1.ObjectName("eg"),
+							},
+						},
+					},
+					ClusterSettings: egv1a1.ClusterSettings{
+						HTTP3: &egv1a1.BackendHTTP3Settings{Mode: new(egv1a1.BackendHTTP3ModeAlways)},
+					},
+					UseClientProtocol: new(true),
+				}
+			},
+			wantErrors: []string{"useClientProtocol cannot be used together with http3.mode"},
 		},
 		{
 			desc: "invalid http3 with proxyProtocol",

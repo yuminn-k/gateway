@@ -910,7 +910,8 @@ type HTTP2KeepaliveSettings struct {
 // +k8s:deepcopy-gen=true
 type BackendHTTP3Settings struct {
 	// Mode determines when HTTP/3 is used to reach the backend: "Auto" or "Always".
-	Mode string `json:"mode" yaml:"mode"`
+	// It is empty when useClientProtocol uses HTTP/3 only for clients that used HTTP/3.
+	Mode string `json:"mode,omitempty" yaml:"mode,omitempty"`
 }
 
 // GRPCSettings provides gRPC configuration on the listener.
@@ -2404,7 +2405,10 @@ func AllSettingsHaveTLS(settings []*DestinationSetting) bool {
 // These incompatibilities can’t be caught by CRD validation. In such cases, the BTP
 // drops HTTP/3 and reports a warning in the policy status, and the xds translator can
 // trust that a route or cluster carrying HTTP3 is able to use it.
-func HTTP3Incompatibilities(settings []*DestinationSetting, useClientProtocol, proxyProtocol bool) []string {
+//
+// useClientProtocolWithMode is set when useClientProtocol meets an http3 mode, which only a
+// merged policy can produce, since CRD validation rejects it on a single policy.
+func HTTP3Incompatibilities(settings []*DestinationSetting, useClientProtocolWithMode, proxyProtocol bool) []string {
 	var reasons []string
 	valid := validSettings(settings)
 	if len(valid) < len(settings) {
@@ -2419,10 +2423,9 @@ func HTTP3Incompatibilities(settings []*DestinationSetting, useClientProtocol, p
 		reasons = append(reasons, "HTTP/3 requires TLS to the backend, "+
 			"configured with a BackendTLSPolicy or the Backend's spec.tls")
 	}
-	if useClientProtocol {
-		// TODO: allow it with an unset mode, forwarding HTTP/3 clients over HTTP/3 through
-		// use_downstream_protocol_config, see https://github.com/envoyproxy/gateway/issues/10250.
-		reasons = append(reasons, "useClientProtocol cannot be used together with http3")
+	if useClientProtocolWithMode {
+		// Always and Auto pick the upstream protocol differently from useClientProtocol.
+		reasons = append(reasons, "useClientProtocol cannot be used together with http3.mode")
 	}
 	if proxyProtocol {
 		reasons = append(reasons, "proxyProtocol cannot be used together with http3, it has no QUIC equivalent")

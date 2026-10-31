@@ -218,6 +218,31 @@ with an active `healthCheck` must also accept TCP on the same port, or every end
 unhealthy while QUIC traffic still works. Passive health checks observe the QUIC traffic itself and
 are unaffected.
 
+### Client Protocol
+
+With `useClientProtocol: true` and `http3` set without a `mode`, Envoy sends each request to the
+backend over the protocol the client used: HTTP/3 clients reach the backend over HTTP/3, and
+HTTP/1.1 and HTTP/2 clients over TLS on TCP.
+
+```yaml
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: backend-client-protocol
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: backend
+  useClientProtocol: true
+  http3: {}
+```
+
+HTTP/3 is only used upstream for clients that used HTTP/3, so the listener needs
+[HTTP/3 to Clients](#http3-to-clients) enabled. Those requests get no TCP fallback: if QUIC to the
+backend fails, they fail, unlike `Auto` mode. Setting a `mode` together with `useClientProtocol` is
+rejected at admission, since `Auto` and `Always` pick the upstream protocol on their own.
+
 ### Limitations
 
 The EnvoyProxy `backendTLS.alpnProtocols` setting is not applied to a cluster using HTTP/3. Envoy
@@ -225,9 +250,8 @@ offers that list on the QUIC handshake too, where only `h3` is valid, so the clu
 list of its own: QUIC negotiates `h3` and the cluster's TCP connections fall back to `h2` and
 `http/1.1`. The policy reports a `Warning` condition naming the cluster.
 
-`http3` cannot be combined with `useClientProtocol` or `proxyProtocol`: the first would have Envoy
-pick the upstream protocol from the downstream request, and PROXY protocol is a TCP preamble with
-no QUIC equivalent. A policy that sets both is rejected at admission. HTTP/3 is also left off, with
+`http3` cannot be combined with `proxyProtocol`, since PROXY protocol is a TCP preamble with no
+QUIC equivalent. A policy that sets both is rejected at admission. HTTP/3 is also left off, with
 the same `Warning` condition, for backends that declare an HTTP/2 or gRPC `appProtocol`, since
 those ask for a protocol HTTP/3 cannot provide.
 

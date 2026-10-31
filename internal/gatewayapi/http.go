@@ -106,9 +106,13 @@ func buildIRHTTP2Settings(http2Settings *egv1a1.HTTP2Settings) (*ir.HTTP2Setting
 	return http2, errs
 }
 
-func buildIRBackendHTTP3Settings(http3Settings *egv1a1.BackendHTTP3Settings) *ir.BackendHTTP3Settings {
+func buildIRBackendHTTP3Settings(http3Settings *egv1a1.BackendHTTP3Settings, useClientProtocol bool) *ir.BackendHTTP3Settings {
 	if http3Settings == nil {
 		return nil
+	}
+	if http3Settings.Mode == nil && useClientProtocol {
+		// No mode: the client's protocol picks HTTP/3 per request.
+		return &ir.BackendHTTP3Settings{}
 	}
 	mode := egv1a1.BackendHTTP3ModeAuto
 	if http3Settings.Mode != nil {

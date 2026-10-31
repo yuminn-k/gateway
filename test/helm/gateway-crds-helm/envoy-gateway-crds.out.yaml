@@ -2091,6 +2091,8 @@ spec:
                     description: |-
                       Mode determines when HTTP/3 is used to reach the backend.
                       Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                      It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                      HTTP/3 is then used only for requests the client sent over HTTP/3.
                     enum:
                     - Auto
                     - Always
@@ -4627,6 +4629,9 @@ spec:
                   UseClientProtocol configures Envoy to prefer sending requests to backends using
                   the same HTTP protocol that the incoming request used. Defaults to false, which means
                   that Envoy will use the protocol indicated by the attached BackendRef.
+
+                  When http3 is also set, without a mode, requests received over HTTP/3 are sent to the
+                  backend over HTTP/3 too, with no fallback to TCP.
                 type: boolean
             type: object
             x-kubernetes-validations:
@@ -4721,8 +4726,9 @@ spec:
                 in [''Service'', ''ServiceImport'', ''Backend'']) || !has(ref.sectionName))'
             - message: either compression or compressor can be set, not both
               rule: '!has(self.compression) || !has(self.compressor)'
-            - message: useClientProtocol cannot be used together with http3
-              rule: '!has(self.http3) || !has(self.useClientProtocol) || !self.useClientProtocol'
+            - message: useClientProtocol cannot be used together with http3.mode
+              rule: '!has(self.http3) || !has(self.http3.mode) || !has(self.useClientProtocol)
+                || !self.useClientProtocol'
             - message: requestBuffer with mode BufferAndLimit cannot be used together
                 with httpUpgrade
               rule: '!has(self.requestBuffer) || self.requestBuffer.mode == ''LimitOnly''
@@ -8648,6 +8654,8 @@ spec:
                               description: |-
                                 Mode determines when HTTP/3 is used to reach the backend.
                                 Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                HTTP/3 is then used only for requests the client sent over HTTP/3.
                               enum:
                               - Auto
                               - Always
@@ -10267,6 +10275,8 @@ spec:
                               description: |-
                                 Mode determines when HTTP/3 is used to reach the backend.
                                 Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                HTTP/3 is then used only for requests the client sent over HTTP/3.
                               enum:
                               - Auto
                               - Always
@@ -25514,6 +25524,8 @@ spec:
                                                 description: |-
                                                   Mode determines when HTTP/3 is used to reach the backend.
                                                   Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                                  It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                                  HTTP/3 is then used only for requests the client sent over HTTP/3.
                                                 enum:
                                                 - Auto
                                                 - Always
@@ -27330,6 +27342,8 @@ spec:
                                                 description: |-
                                                   Mode determines when HTTP/3 is used to reach the backend.
                                                   Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                                  It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                                  HTTP/3 is then used only for requests the client sent over HTTP/3.
                                                 enum:
                                                 - Auto
                                                 - Always
@@ -29539,6 +29553,8 @@ spec:
                                           description: |-
                                             Mode determines when HTTP/3 is used to reach the backend.
                                             Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                            It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                            HTTP/3 is then used only for requests the client sent over HTTP/3.
                                           enum:
                                           - Auto
                                           - Always
@@ -31466,6 +31482,8 @@ spec:
                                     description: |-
                                       Mode determines when HTTP/3 is used to reach the backend.
                                       Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                      It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                      HTTP/3 is then used only for requests the client sent over HTTP/3.
                                     enum:
                                     - Auto
                                     - Always
@@ -35246,6 +35264,8 @@ spec:
                                 description: |-
                                   Mode determines when HTTP/3 is used to reach the backend.
                                   Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                  It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                  HTTP/3 is then used only for requests the client sent over HTTP/3.
                                 enum:
                                 - Auto
                                 - Always
@@ -36917,6 +36937,8 @@ spec:
                                 description: |-
                                   Mode determines when HTTP/3 is used to reach the backend.
                                   Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                  It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                  HTTP/3 is then used only for requests the client sent over HTTP/3.
                                 enum:
                                 - Auto
                                 - Always
@@ -38927,6 +38949,8 @@ spec:
                                       description: |-
                                         Mode determines when HTTP/3 is used to reach the backend.
                                         Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                        It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                        HTTP/3 is then used only for requests the client sent over HTTP/3.
                                       enum:
                                       - Auto
                                       - Always
@@ -41063,6 +41087,8 @@ spec:
                                 description: |-
                                   Mode determines when HTTP/3 is used to reach the backend.
                                   Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.
+                                  It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;
+                                  HTTP/3 is then used only for requests the client sent over HTTP/3.
                                 enum:
                                 - Auto
                                 - Always

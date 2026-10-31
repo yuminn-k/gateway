@@ -461,7 +461,7 @@ _Appears in:_
 
 | Field | Type | Required | Default | Description |
 | ---   | ---  | ---      | ---     | ---         |
-| `mode` | _[BackendHTTP3Mode](#backendhttp3mode)_ |  false  |  | Mode determines when HTTP/3 is used to reach the backend.<br />Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc. |
+| `mode` | _[BackendHTTP3Mode](#backendhttp3mode)_ |  false  |  | Mode determines when HTTP/3 is used to reach the backend.<br />Defaults to Auto, which only uses HTTP/3 for backends advertising it via alt-svc.<br />It must be unset when useClientProtocol is enabled on the BackendTrafficPolicy;<br />HTTP/3 is then used only for requests the client sent over HTTP/3. |
 
 
 #### BackendMetrics
@@ -685,7 +685,7 @@ _Appears in:_
 | `bandwidthLimit` | _[BandwidthLimitSpec](#bandwidthlimitspec)_ |  false  |  | BandwidthLimit allows the user to limit the bandwidth of traffic<br />sent to and received from the backend. |
 | `faultInjection` | _[FaultInjection](#faultinjection)_ |  false  |  | FaultInjection defines the fault injection policy to be applied. This configuration can be used to<br />inject delays and abort requests to mimic failure scenarios such as service failures and overloads |
 | `admissionControl` | _[AdmissionControl](#admissioncontrol)_ |  false  |  | AdmissionControl defines the admission control policy to be applied. This configuration<br />probabilistically rejects requests based on the success rate of previous requests in a<br />configurable sliding time window. |
-| `useClientProtocol` | _boolean_ |  false  |  | UseClientProtocol configures Envoy to prefer sending requests to backends using<br />the same HTTP protocol that the incoming request used. Defaults to false, which means<br />that Envoy will use the protocol indicated by the attached BackendRef. |
+| `useClientProtocol` | _boolean_ |  false  |  | UseClientProtocol configures Envoy to prefer sending requests to backends using<br />the same HTTP protocol that the incoming request used. Defaults to false, which means<br />that Envoy will use the protocol indicated by the attached BackendRef.<br />When http3 is also set, without a mode, requests received over HTTP/3 are sent to the<br />backend over HTTP/3 too, with no fallback to TCP. |
 | `compression` | _[Compression](#compression) array_ |  false  |  | The compression config for the http streams.<br />Deprecated: Use Compressor instead. This field will be removed in v1.11. |
 | `compressor` | _[Compression](#compression) array_ |  false  |  | The compressor config for the http streams.<br />This provides more granular control over compression configuration.<br />Order matters: The first compressor in the list is preferred when q-values in Accept-Encoding are equal. |
 | `responseOverride` | _[ResponseOverride](#responseoverride) array_ |  false  |  | ResponseOverride defines the configuration to override specific responses with a custom one.<br />If multiple configurations are specified, the first one to match wins. |
